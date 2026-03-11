@@ -1,3 +1,54 @@
+# Expense Tracker (Next.js + Supabase)
+
+Full‑stack expense tracker with Supabase Auth + RLS-protected transactions, and analytics charts via Chart.js.
+
+## Features
+
+- **Auth**: Email/password signup + login + logout (Supabase Auth)
+- **Protected dashboard**: `/dashboard` requires a valid session
+- **Transactions**: Add/edit/delete income & expenses with category + date
+- **Filters**: Type, category, date range + sorting
+- **Analytics**:
+  - Summary cards (income, expenses, net, savings rate) for current month
+  - Pie: expense breakdown by category (current month)
+  - Bar: income vs expenses (last 6 months)
+  - Line: spending trend (last 6 months)
+
+## 1) Create Supabase project
+
+1. Create a Supabase project
+2. In **Authentication → Providers**, enable **Email**
+3. In **SQL Editor**, run:
+   - `supabase/schema.sql`
+
+## 2) Configure environment variables
+
+Create `.env.local` in `expense-tracker/`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+```
+
+Notes:
+- Keep secrets out of git. If you have DB URLs like in `env.txt`, **do not** copy them into the client env vars.
+
+## 3) Install + run
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Supabase table
+
+Transactions table fields:
+- `id`, `user_id`, `amount`, `type`, `category`, `description`, `date`, `created_at`
+
+Row Level Security is enabled so users can only access rows where `user_id = auth.uid()`.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

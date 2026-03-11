@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fbfbfd;
+  --fg: #0b0d12;
+
+  --card: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(10, 15, 25, 0.10);
+
+  --muted: rgba(10, 15, 25, 0.62);
+  --muted-2: rgba(10, 15, 25, 0.38);
+
+  --accent: #2b5cff; /* cobalt */
+  --accent-2: #93b3ff;
+
+  --income: #1b9a5a;
+  --expense: #d13a3a;
+
+  --shadow: 0 22px 80px rgba(0,0,0,0.12);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #07080c;
+    --fg: rgba(255, 255, 255, 0.92);
+
+    --card: rgba(12, 14, 20, 0.70);
+    --card-border: rgba(255, 255, 255, 0.10);
+
+    --muted: rgba(255, 255, 255, 0.70);
+    --muted-2: rgba(255, 255, 255, 0.48);
+
+    --accent: #4b7bff;
+    --accent-2: #b7ccff;
+
+    --income: #26c077;
+    --expense: #ff5c5c;
+
+    --shadow: 0 22px 80px rgba(0,0,0,0.50);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: radial-gradient(900px 520px at 10% 10%, rgba(43, 92, 255, 0.12), transparent 55%),
+    radial-gradient(820px 480px at 90% 20%, rgba(147, 179, 255, 0.10), transparent 58%),
+    radial-gradient(920px 620px at 60% 100%, rgba(0, 0, 0, 0.06), transparent 60%),
+    var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: rgba(43, 92, 255, 0.28);
+}
+
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+.glass {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
 }
