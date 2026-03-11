@@ -39,19 +39,29 @@ export default function SignupPage() {
     setSubmitting(true);
     const t = toast.loading("Creating account…");
 
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+      });
 
-    toast.dismiss(t);
-    setSubmitting(false);
+      toast.dismiss(t);
+      setSubmitting(false);
 
-    if (error) return toast.error(error.message);
+      if (error) {
+        console.error("Supabase Signup Error:", error);
+        return toast.error(error.message);
+      }
 
-    toast.success("Account created");
-    router.push("/dashboard");
-    router.refresh();
+      toast.success("Account created");
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      toast.dismiss(t);
+      setSubmitting(false);
+      console.error("Signup Catch Error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to fetch");
+    }
   }
 
   return (

@@ -31,7 +31,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${display.variable} ${sans.variable} ${mono.variable} antialiased`}>
+      <body
+        className={`${display.variable} ${sans.variable} ${mono.variable} antialiased`}
+        suppressHydrationWarning
+      >
         {children}
         <Toaster
           position="top-right"

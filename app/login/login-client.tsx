@@ -34,13 +34,23 @@ export function LoginClient() {
   async function onSubmit(values: FormValues) {
     setSubmitting(true);
     const t = toast.loading("Logging in…");
-    const { error } = await supabase.auth.signInWithPassword(values);
-    toast.dismiss(t);
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    toast.success("Welcome back");
-    router.push(nextPath);
-    router.refresh();
+    try {
+      const { error } = await supabase.auth.signInWithPassword(values);
+      toast.dismiss(t);
+      setSubmitting(false);
+      if (error) {
+        console.error("Supabase Login Error:", error);
+        return toast.error(error.message);
+      }
+      toast.success("Welcome back");
+      router.push(nextPath);
+      router.refresh();
+    } catch (err) {
+      toast.dismiss(t);
+      setSubmitting(false);
+      console.error("Login Catch Error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to fetch");
+    }
   }
 
   return (

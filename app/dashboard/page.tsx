@@ -12,7 +12,7 @@ export default async function DashboardPage() {
           <p className="mt-2 text-sm text-[color:var(--muted)]">
             Add <span className="font-mono text-xs">NEXT_PUBLIC_SUPABASE_URL</span> and{" "}
             <span className="font-mono text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</span> to{" "}
-            <span className="font-mono text-xs">.env.local</span>, then restart the dev server.
+            <span className="font-mono text-xs">.env</span>, then restart the dev server.
           </p>
           <p className="mt-4 text-sm text-[color:var(--muted)]">
             SQL schema is in <span className="font-mono text-xs">supabase/schema.sql</span>.
