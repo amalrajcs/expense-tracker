@@ -9,15 +9,24 @@ export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
 
   return createServerClient(url, anonKey, {
+    cookieOptions: {
+      name: "sb-auth-token",
+      maxAge: 60 * 60 * 24 * 7,
+      domain: "",
+      path: "/",
+      sameSite: "lax",
+    },
     cookies: {
       getAll() {
         return cookieStore.getAll();
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
         } catch {
-          // Server Components can't set cookies. Middleware/Route Handlers can.
+          // Fallback if set() is called during a regular page render
         }
       },
     },

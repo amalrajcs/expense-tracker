@@ -4,13 +4,17 @@ import { cn } from "@/lib/utils";
 
 export function Brand({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-[color:var(--accent)] text-white shadow-[0_12px_34px_rgba(43,92,255,0.22)]">
-        <span className="font-display text-lg leading-none">E</span>
+    <div className={cn("flex items-center gap-3", className)}>
+      <div className="flex h-11 w-11 rotate-[-6deg] items-center justify-center rounded-xl bg-linear-to-br from-[color:var(--primary)] to-[color:var(--secondary)] font-display text-xl font-extrabold text-white shadow-lg shadow-indigo-500/25 transition-transform duration-300 hover:rotate-[6deg] hover:scale-110">
+        ₹
       </div>
-      <div className="leading-tight">
-        <div className="font-display text-lg tracking-tight">Expense</div>
-        <div className="-mt-0.5 text-xs text-[color:var(--muted-2)]">Tracker</div>
+      <div className="flex flex-col gap-0">
+        <div className="font-display text-xl font-extrabold tracking-tight leading-none text-[color:var(--fg)]">
+          Finio
+        </div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--muted-2)]">
+          Expense Tracker
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Spline_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Syne, DM_Sans, IBM_Plex_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-const display = Bodoni_Moda({
+const display = Syne({
   variable: "--font-display",
   subsets: ["latin"],
+  weight: ["700", "800"],
 });
 
-const sans = Spline_Sans({
+const sans = DM_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 const mono = IBM_Plex_Mono({
@@ -19,9 +21,15 @@ const mono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
+const accent = Outfit({
+  variable: "--font-accent",
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+});
+
 export const metadata: Metadata = {
-  title: "Expense Tracker",
-  description: "Track income, expenses, and spending insights.",
+  title: "Finio Expense Tracker",
+  description: "Money, simplified. Track income, expenses, and spending insights with clarity.",
 };
 
 export default function RootLayout({
@@ -32,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${display.variable} ${sans.variable} ${mono.variable} antialiased`}
+        className={`${display.variable} ${sans.variable} ${mono.variable} ${accent.variable} antialiased`}
         suppressHydrationWarning
       >
         {children}
