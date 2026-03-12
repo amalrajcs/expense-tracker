@@ -338,8 +338,8 @@ export function DashboardClient({ userId }: { userId: string }) {
           </div>
 
           <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
-            <div className="max-h-[520px] overflow-auto">
-              <table className="w-full text-left text-sm">
+            <div className="hidden md:block max-h-[520px] overflow-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
                 <thead className="sticky top-0 bg-[color:var(--bg)]/85 backdrop-blur">
                   <tr className="text-xs text-[color:var(--muted-2)]">
                     <th className="px-4 py-3">Date</th>
@@ -401,6 +401,48 @@ export function DashboardClient({ userId }: { userId: string }) {
                 </tbody>
               </table>
             </div>
+
+            <div className="flex flex-col divide-y divide-white/10 md:hidden max-h-[520px] overflow-auto">
+              {loading ? (
+                <div className="p-8 text-center text-sm text-[color:var(--muted)]">Loading transactions…</div>
+              ) : rows.length === 0 ? (
+                <div className="p-8 text-center text-sm text-[color:var(--muted)]">No transactions found.</div>
+              ) : (
+                rows.map((t) => (
+                  <div key={t.id} className="flex flex-col gap-3 p-4 hover:bg-black/5 dark:hover:bg-white/5">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="font-medium text-sm">{t.category}</div>
+                        <div className="mt-1 font-mono text-[10px] text-[color:var(--muted-2)]">{t.date}</div>
+                        {t.description && (
+                          <div className="mt-1 text-xs text-[color:var(--muted)]">{t.description}</div>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-2 text-right">
+                        <div
+                          className={cn(
+                            "text-sm font-medium tabular-nums",
+                            t.type === "income" ? "text-[color:var(--income)]" : "text-[color:var(--expense)]",
+                          )}
+                        >
+                          {t.type === "expense" ? "-" : "+"}
+                          {money(t.amount)}
+                        </div>
+                        <Pill tone={t.type}>{t.type}</Pill>
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-1">
+                      <Button variant="ghost" className="h-8 px-3 text-xs" onClick={() => openEdit(t)}>
+                        Edit
+                      </Button>
+                      <Button variant="ghost" className="h-8 px-3 text-xs text-[color:var(--expense)]" onClick={() => onDelete(t.id)}>
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
 
@@ -443,7 +485,7 @@ export function DashboardClient({ userId }: { userId: string }) {
                   plugins: { legend: { position: "bottom" } },
                   scales: {
                     x: { grid: { display: false } },
-                    y: { ticks: { callback: (v) => `$${v}` } },
+                    y: { ticks: { callback: (v) => `₹${v}` } },
                   },
                 }}
               />
@@ -461,7 +503,7 @@ export function DashboardClient({ userId }: { userId: string }) {
                   plugins: { legend: { position: "bottom" } },
                   scales: {
                     x: { grid: { display: false } },
-                    y: { ticks: { callback: (v) => `$${v}` } },
+                    y: { ticks: { callback: (v) => `₹${v}` } },
                   },
                 }}
               />
@@ -531,7 +573,7 @@ function sum(xs: number[]) {
 function money(value: number) {
   const sign = value < 0 ? "-" : "";
   const abs = Math.abs(value);
-  return `${sign}$${abs.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  return `${sign}₹${abs.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 }
 
 function TransactionSheet({

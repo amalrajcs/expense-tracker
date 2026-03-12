@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
+import ScrollReveal from "@/components/scroll-reveal";
 
 export default function Home() {
   return (
@@ -15,9 +16,16 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/40 px-3 py-1 text-xs text-[color:var(--muted)] dark:bg-white/10">
                 <span className="font-mono text-[10px] tracking-wider">NEXT • SUPABASE • CHARTS</span>
               </div>
-              <h1 className="font-display mt-5 text-4xl leading-[1.03] tracking-tight md:text-6xl">
+              <ScrollReveal 
+                containerClassName="font-display !my-0 border-none"
+                textClassName="text-5xl leading-[1.03] tracking-tight md:text-6xl !font-normal"
+                enableBlur={true}
+                baseOpacity={0}
+                baseRotation={3}
+                blurStrength={3}
+              >
                 Money, distilled into calm decisions.
-              </h1>
+              </ScrollReveal>
               <p className="mt-4 max-w-xl text-sm leading-6 text-[color:var(--muted)] md:text-base md:leading-7">
                 Log income and expenses, categorize spending, and see your month at a glance—net balance,
                 savings rate, and trends that actually explain what changed.
@@ -50,9 +58,9 @@ export default function Home() {
                   <div className="font-mono text-xs text-[color:var(--muted-2)]">03 • 2026</div>
                 </div>
                 <div className="mt-4 grid gap-3">
-                  <MiniStat label="Income" value="$6,200" tone="income" />
-                  <MiniStat label="Expenses" value="$2,845" tone="expense" />
-                  <MiniStat label="Net" value="$3,355" tone="accent" />
+                  <MiniStat label="Income" value="₹6,200" tone="income" />
+                  <MiniStat label="Expenses" value="₹2,845" tone="expense" />
+                  <MiniStat label="Net" value="₹3,355" tone="accent" />
                 </div>
                 <div className="mt-5 h-20 rounded-2xl border border-white/10 bg-gradient-to-r from-[color:var(--accent)]/20 via-transparent to-[color:var(--accent-2)]/20" />
               </div>

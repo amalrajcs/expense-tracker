@@ -39,7 +39,6 @@ export function LoginClient() {
       toast.dismiss(t);
       setSubmitting(false);
       if (error) {
-        console.error("Supabase Login Error:", error);
         return toast.error(error.message);
       }
       toast.success("Welcome back");
@@ -48,7 +47,7 @@ export function LoginClient() {
     } catch (err) {
       toast.dismiss(t);
       setSubmitting(false);
-      console.error("Login Catch Error:", err);
+      console.error("Login Catch Error:", err instanceof Error ? err.message : err);
       toast.error(err instanceof Error ? err.message : "Failed to fetch");
     }
   }

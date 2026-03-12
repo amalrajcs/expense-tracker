@@ -49,7 +49,6 @@ export default function SignupPage() {
       setSubmitting(false);
 
       if (error) {
-        console.error("Supabase Signup Error:", error);
         return toast.error(error.message);
       }
 
@@ -59,7 +58,7 @@ export default function SignupPage() {
     } catch (err) {
       toast.dismiss(t);
       setSubmitting(false);
-      console.error("Signup Catch Error:", err);
+      console.error("Signup Catch Error:", err instanceof Error ? err.message : err);
       toast.error(err instanceof Error ? err.message : "Failed to fetch");
     }
   }
