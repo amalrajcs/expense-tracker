@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, IBM_Plex_Mono, Outfit } from "next/font/google";
+import { Poppins, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-const display = Syne({
+const display = Poppins({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["700", "800"],
+  weight: ["600", "700", "800"],
 });
 
-const sans = DM_Sans({
+const sans = Poppins({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600"],
 });
 
 const mono = IBM_Plex_Mono({
@@ -21,7 +21,7 @@ const mono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const accent = Outfit({
+const accent = Poppins({
   variable: "--font-accent",
   subsets: ["latin"],
   weight: ["300", "400", "500"],

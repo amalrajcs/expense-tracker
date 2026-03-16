@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -13,47 +12,63 @@ import { Input } from "@/components/ui/input";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const schema = z.object({
-  email: z.string().email("Enter a valid email"),
   password: z.string().min(8, "Minimum 8 characters"),
+  confirmPassword: z.string().min(8, "Minimum 8 characters"),
+}).refine((v) => v.password === v.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
 
 type FormValues = z.infer<typeof schema>;
 
-export function LoginClient() {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+export default function ResetPasswordPage() {
   const router = useRouter();
-  const search = useSearchParams();
-  const nextPath = search.get("next") || "/dashboard";
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Invalid or expired reset link.");
+        router.push("/login");
+      }
+    };
+    checkSession();
+  }, [supabase, router]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { password: "", confirmPassword: "" },
   });
 
   async function onSubmit(values: FormValues) {
     setSubmitting(true);
-    const t = toast.loading("Verifying credentials…");
+    const t = toast.loading("Updating password...");
+
     try {
-      const { error } = await supabase.auth.signInWithPassword(values);
+      const { error } = await supabase.auth.updateUser({
+        password: values.password,
+      });
+
       toast.dismiss(t);
       setSubmitting(false);
+
       if (error) {
         return toast.error(error.message);
       }
-      toast.success("Welcome back to Finio");
-      router.push(nextPath);
+
+      toast.success("Password updated successfully!");
+      router.push("/dashboard");
       router.refresh();
     } catch (err) {
       toast.dismiss(t);
       setSubmitting(false);
-      console.error("Login Catch Error:", err instanceof Error ? err.message : err);
-      toast.error(err instanceof Error ? err.message : "Authentication failed");
+      console.error("Reset Password Catch Error:", err instanceof Error ? err.message : err);
+      toast.error(err instanceof Error ? err.message : "Failed to update password");
     }
   }
 
@@ -97,52 +112,51 @@ export function LoginClient() {
           <div className="absolute top-1/4 right-1/4 h-[300px] w-[300px] rounded-full bg-cyan-500/10 blur-[100px]" />
         </div>
 
-        <div className="w-full max-w-[440px] animate-fadeIn">
+        <div className="w-full max-w-[480px] animate-fadeIn">
           <div className="glass group relative overflow-hidden rounded-[40px] border border-white/5 bg-white/[0.03] p-10 backdrop-blur-3xl shadow-2xl">
             {/* Top Brand Symbol */}
             <div className="mb-8 flex justify-center">
               <div className="flex h-16 w-16 rotate-[-6deg] items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-cyan-500 text-3xl font-black text-white shadow-xl shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-[6deg] group-hover:scale-110">
-                ₹
+                🔒
               </div>
             </div>
 
             <div className="text-center">
               <h1 className="font-display text-4xl font-extrabold tracking-tight text-white md:text-5xl">
-                Welcome back
+                Update Password
               </h1>
               <p className="font-accent mt-3 text-base text-slate-400">
-                Continue your journey with Finio.
+                Enter your new secure password below.
               </p>
             </div>
 
             <form className="mt-10 space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Email Address</label>
-                <Input 
-                  type="email" 
-                  className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0" 
-                  placeholder="name@example.com" 
-                  {...form.register("email")} 
-                />
-                {form.formState.errors.email && (
-                  <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.email.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between px-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Password</label>
-                  <Link href="/forgot-password" className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:text-indigo-300">Forgot?</Link>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">New Password</label>
+                  <Input
+                    type="password"
+                    className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
+                    placeholder="••••••••"
+                    {...form.register("password")}
+                  />
+                  {form.formState.errors.password && (
+                    <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.password.message}</p>
+                  )}
                 </div>
-                <Input
-                  type="password"
-                  className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
-                  placeholder="••••••••"
-                  {...form.register("password")}
-                />
-                {form.formState.errors.password && (
-                  <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.password.message}</p>
-                )}
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Confirm</label>
+                  <Input
+                    type="password"
+                    className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
+                    placeholder="••••••••"
+                    {...form.register("confirmPassword")}
+                  />
+                  {form.formState.errors.confirmPassword && (
+                    <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.confirmPassword.message}</p>
+                  )}
+                </div>
               </div>
 
               <Button 
@@ -150,16 +164,9 @@ export function LoginClient() {
                 className="mt-4 h-14 w-full rounded-2xl bg-linear-to-br from-indigo-600 to-cyan-600 text-base font-bold text-white shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-[0.98] transition-all disabled:opacity-50" 
                 disabled={submitting}
               >
-                {submitting ? "Signing in..." : "Log in"}
+                {submitting ? "Updating..." : "Update Password"}
               </Button>
             </form>
-
-            <div className="mt-8 text-center text-sm font-medium text-slate-400">
-              New here?{" "}
-              <Link className="text-indigo-400 transition-colors hover:text-indigo-300 font-bold" href="/signup">
-                Create an account
-              </Link>
-            </div>
           </div>
         </div>
 
@@ -181,4 +188,3 @@ export function LoginClient() {
     </AppShell>
   );
 }
-

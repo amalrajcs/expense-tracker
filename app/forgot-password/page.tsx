@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,18 +14,16 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "Minimum 8 characters"),
 });
 
 type FormValues = z.infer<typeof schema>;
 
-export function LoginClient() {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+export default function ForgotPasswordPage() {
   const router = useRouter();
-  const search = useSearchParams();
-  const nextPath = search.get("next") || "/dashboard";
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -33,27 +31,32 @@ export function LoginClient() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "" },
   });
 
   async function onSubmit(values: FormValues) {
     setSubmitting(true);
-    const t = toast.loading("Verifying credentials…");
+    const t = toast.loading("Sending reset link...");
+
     try {
-      const { error } = await supabase.auth.signInWithPassword(values);
+      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
       toast.dismiss(t);
       setSubmitting(false);
+
       if (error) {
         return toast.error(error.message);
       }
-      toast.success("Welcome back to Finio");
-      router.push(nextPath);
-      router.refresh();
+
+      setEmailSent(true);
+      toast.success("Password reset link sent to your email.");
     } catch (err) {
       toast.dismiss(t);
       setSubmitting(false);
-      console.error("Login Catch Error:", err instanceof Error ? err.message : err);
-      toast.error(err instanceof Error ? err.message : "Authentication failed");
+      console.error("Forgot Password Catch Error:", err instanceof Error ? err.message : err);
+      toast.error(err instanceof Error ? err.message : "Failed to send reset link");
     }
   }
 
@@ -102,62 +105,60 @@ export function LoginClient() {
             {/* Top Brand Symbol */}
             <div className="mb-8 flex justify-center">
               <div className="flex h-16 w-16 rotate-[-6deg] items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-cyan-500 text-3xl font-black text-white shadow-xl shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-[6deg] group-hover:scale-110">
-                ₹
+                ?
               </div>
             </div>
 
             <div className="text-center">
               <h1 className="font-display text-4xl font-extrabold tracking-tight text-white md:text-5xl">
-                Welcome back
+                Reset Password
               </h1>
               <p className="font-accent mt-3 text-base text-slate-400">
-                Continue your journey with Finio.
+                {emailSent 
+                  ? "Check your email for the reset link."
+                  : "Enter your email to receive a reset link."
+                }
               </p>
             </div>
 
-            <form className="mt-10 space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Email Address</label>
-                <Input 
-                  type="email" 
-                  className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0" 
-                  placeholder="name@example.com" 
-                  {...form.register("email")} 
-                />
-                {form.formState.errors.email && (
-                  <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.email.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between px-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Password</label>
-                  <Link href="/forgot-password" className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:text-indigo-300">Forgot?</Link>
+            {!emailSent ? (
+              <form className="mt-10 space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Email Address</label>
+                  <Input 
+                    type="email" 
+                    className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0" 
+                    placeholder="name@example.com" 
+                    {...form.register("email")} 
+                  />
+                  {form.formState.errors.email && (
+                    <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.email.message}</p>
+                  )}
                 </div>
-                <Input
-                  type="password"
-                  className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
-                  placeholder="••••••••"
-                  {...form.register("password")}
-                />
-                {form.formState.errors.password && (
-                  <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.password.message}</p>
-                )}
-              </div>
 
-              <Button 
-                type="submit" 
-                className="mt-4 h-14 w-full rounded-2xl bg-linear-to-br from-indigo-600 to-cyan-600 text-base font-bold text-white shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-[0.98] transition-all disabled:opacity-50" 
-                disabled={submitting}
-              >
-                {submitting ? "Signing in..." : "Log in"}
-              </Button>
-            </form>
+                <Button 
+                  type="submit" 
+                  className="mt-4 h-14 w-full rounded-2xl bg-linear-to-br from-indigo-600 to-cyan-600 text-base font-bold text-white shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-[0.98] transition-all disabled:opacity-50" 
+                  disabled={submitting}
+                >
+                  {submitting ? "Sending..." : "Send Reset Link"}
+                </Button>
+              </form>
+            ) : (
+              <div className="mt-10">
+                <Button 
+                  className="mt-4 h-14 w-full rounded-2xl bg-white/10 text-base font-bold text-white shadow-xl hover:bg-white/20 active:scale-[0.98] transition-all" 
+                  onClick={() => router.push('/login')}
+                >
+                  Return to Login
+                </Button>
+              </div>
+            )}
 
             <div className="mt-8 text-center text-sm font-medium text-slate-400">
-              New here?{" "}
-              <Link className="text-indigo-400 transition-colors hover:text-indigo-300 font-bold" href="/signup">
-                Create an account
+              Remember your password?{" "}
+              <Link className="text-indigo-400 transition-colors hover:text-indigo-300 font-bold" href="/login">
+                Log in
               </Link>
             </div>
           </div>
@@ -181,4 +182,3 @@ export function LoginClient() {
     </AppShell>
   );
 }
-
