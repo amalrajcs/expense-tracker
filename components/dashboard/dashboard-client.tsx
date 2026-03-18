@@ -32,6 +32,8 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Sheet } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 ChartJS.register(
   CategoryScale,
@@ -245,6 +247,45 @@ export function DashboardClient({ userId }: { userId: string }) {
     void load();
   }
 
+  function exportToPDF() {
+    const doc = new jsPDF();
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Top Title
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(22);
+    doc.text("Fino Expense Tracker", pageWidth / 2, 20, { align: "center" });
+
+    // Subtitle
+    doc.setFontSize(14);
+    doc.text("Expense Report", pageWidth / 2, 28, { align: "center" });
+
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Generated on ${format(new Date(), "MMM dd, yyyy")}`, 14, 38);
+
+    const tableCols = ["Date", "Type", "Category", "Description", "Amount"];
+    const tableRows = rows.map(t => [
+      t.date,
+      t.type.charAt(0).toUpperCase() + t.type.slice(1),
+      t.category,
+      t.description || "-",
+      money(t.amount)
+    ]);
+
+    autoTable(doc, {
+      head: [tableCols],
+      body: tableRows,
+      startY: 44,
+      theme: "striped",
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [99, 102, 241] },
+    });
+
+    doc.save("Expense_Report.pdf");
+  }
+
   const netPct = currentMonth.income > 0
     ? Math.min(100, Math.max(0, (currentMonth.net / currentMonth.income) * 100))
     : 0;
@@ -455,16 +496,29 @@ export function DashboardClient({ userId }: { userId: string }) {
                 Filter, sort &amp; manage entries
               </p>
             </div>
-            <button
-              onClick={() => { setEditing(null); setSheetOpen(true); }}
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-100"
-              style={{
-                background: "linear-gradient(135deg, #6366f1, #06b6d4)",
-                boxShadow: "0 4px 20px rgba(99,102,241,0.5), 0 0 0 1px rgba(99,102,241,0.3)",
-              }}
-            >
-              <span className="text-base leading-none">＋</span> Add Transaction
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={exportToPDF}
+                className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-100"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                }}
+              >
+                <span className="text-base leading-none">📥</span> Export PDF
+              </button>
+              <button
+                onClick={() => { setEditing(null); setSheetOpen(true); }}
+                className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-100"
+                style={{
+                  background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+                  boxShadow: "0 4px 20px rgba(99,102,241,0.5), 0 0 0 1px rgba(99,102,241,0.3)",
+                }}
+              >
+                <span className="text-base leading-none">＋</span> Add Transaction
+              </button>
+            </div>
           </div>
 
           {/* Filters */}
