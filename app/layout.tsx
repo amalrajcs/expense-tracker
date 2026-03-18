@@ -1,34 +1,9 @@
 import type { Metadata } from "next";
-import { Poppins, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-const display = Poppins({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-});
-
-const sans = Poppins({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const mono = IBM_Plex_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-});
-
-const accent = Poppins({
-  variable: "--font-accent",
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-});
-
 export const metadata: Metadata = {
-  title: "Finio Expense Tracker",
+  title: "Fino Expense Tracker",
   description: "Money, simplified. Track income, expenses, and spending insights with clarity.",
 };
 
@@ -39,8 +14,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet" />
+      </head>
       <body
-        className={`${display.variable} ${sans.variable} ${mono.variable} ${accent.variable} antialiased`}
+        className="font-sans antialiased"
         suppressHydrationWarning
       >
         {children}

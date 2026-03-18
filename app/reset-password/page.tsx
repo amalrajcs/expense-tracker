@@ -26,15 +26,27 @@ export default function ResetPasswordPage() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
 
     const checkSession = async () => {
+      // Give Supabase client a moment to parse the hash fragment for access_token
+      await new Promise((r) => setTimeout(r, 800));
+      
       const { data: { session } } = await supabase.auth.getSession();
+      
+      // If no session, check if URL hash has an error from Supabase
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      const params = new URLSearchParams(hash.substring(1));
+      const errorMsg = params.get('error_description') || params.get('error');
+
       if (!session) {
-        toast.error("Invalid or expired reset link.");
+        toast.error(errorMsg || "Invalid or expired reset link.");
         router.push("/login");
+      } else {
+        setLoading(false);
       }
     };
     checkSession();
@@ -113,61 +125,68 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="w-full max-w-[480px] animate-fadeIn">
-          <div className="glass group relative overflow-hidden rounded-[40px] border border-white/5 bg-white/[0.03] p-10 backdrop-blur-3xl shadow-2xl">
-            {/* Top Brand Symbol */}
-            <div className="mb-8 flex justify-center">
-              <div className="flex h-16 w-16 rotate-[-6deg] items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-cyan-500 text-3xl font-black text-white shadow-xl shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-[6deg] group-hover:scale-110">
-                🔒
-              </div>
+          {loading ? (
+            <div className="glass flex flex-col items-center justify-center rounded-[40px] border border-white/5 bg-white/[0.03] p-16 backdrop-blur-3xl">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+              <p className="mt-6 text-lg font-medium text-slate-300">Verifying link...</p>
             </div>
-
-            <div className="text-center">
-              <h1 className="font-display text-4xl font-extrabold tracking-tight text-white md:text-5xl">
-                Update Password
-              </h1>
-              <p className="font-accent mt-3 text-base text-slate-400">
-                Enter your new secure password below.
-              </p>
-            </div>
-
-            <form className="mt-10 space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">New Password</label>
-                  <Input
-                    type="password"
-                    className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
-                    placeholder="••••••••"
-                    {...form.register("password")}
-                  />
-                  {form.formState.errors.password && (
-                    <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.password.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Confirm</label>
-                  <Input
-                    type="password"
-                    className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
-                    placeholder="••••••••"
-                    {...form.register("confirmPassword")}
-                  />
-                  {form.formState.errors.confirmPassword && (
-                    <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.confirmPassword.message}</p>
-                  )}
+          ) : (
+            <div className="glass group relative overflow-hidden rounded-[40px] border border-white/5 bg-white/[0.03] p-10 backdrop-blur-3xl shadow-2xl">
+              {/* Top Brand Symbol */}
+              <div className="mb-8 flex justify-center">
+                <div className="flex h-16 w-16 rotate-[-6deg] items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-cyan-500 text-3xl font-black text-white shadow-xl shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-[6deg] group-hover:scale-110">
+                  🔒
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="mt-4 h-14 w-full rounded-2xl bg-linear-to-br from-indigo-600 to-cyan-600 text-base font-bold text-white shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-[0.98] transition-all disabled:opacity-50" 
-                disabled={submitting}
-              >
-                {submitting ? "Updating..." : "Update Password"}
-              </Button>
-            </form>
-          </div>
+              <div className="text-center">
+                <h1 className="font-display text-4xl font-extrabold tracking-tight text-white md:text-5xl">
+                  Update Password
+                </h1>
+                <p className="font-accent mt-3 text-base text-slate-400">
+                  Enter your new secure password below.
+                </p>
+              </div>
+
+              <form className="mt-10 space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">New Password</label>
+                    <Input
+                      type="password"
+                      className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
+                      placeholder="••••••••"
+                      {...form.register("password")}
+                    />
+                    {form.formState.errors.password && (
+                      <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.password.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Confirm</label>
+                    <Input
+                      type="password"
+                      className="h-14 rounded-2xl border-white/5 bg-white/5 px-6 text-base transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-0"
+                      placeholder="••••••••"
+                      {...form.register("confirmPassword")}
+                    />
+                    {form.formState.errors.confirmPassword && (
+                      <p className="text-xs font-medium text-rose-500 ml-2">{form.formState.errors.confirmPassword.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="mt-4 h-14 w-full rounded-2xl bg-linear-to-br from-indigo-600 to-cyan-600 text-base font-bold text-white shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-[0.98] transition-all disabled:opacity-50" 
+                  disabled={submitting}
+                >
+                  {submitting ? "Updating..." : "Update Password"}
+                </Button>
+              </form>
+            </div>
+          )}
         </div>
 
         <style jsx>{`

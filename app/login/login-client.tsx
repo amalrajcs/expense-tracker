@@ -46,7 +46,7 @@ export function LoginClient() {
       if (error) {
         return toast.error(error.message);
       }
-      toast.success("Welcome back to Finio");
+      toast.success("Welcome back to Fino");
       router.push(nextPath);
       router.refresh();
     } catch (err) {
@@ -111,7 +111,7 @@ export function LoginClient() {
                 Welcome back
               </h1>
               <p className="font-accent mt-3 text-base text-slate-400">
-                Continue your journey with Finio.
+                Continue your journey with Fino.
               </p>
             </div>
 

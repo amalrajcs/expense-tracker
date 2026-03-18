@@ -2,7 +2,7 @@
 
 :root {
   --bg: #000000;
-  --fg: #F8FAFC;
+  --fg: #FFFFFF;
 
   --card: rgba(15, 23, 42, 0.40);
   --card-border: rgba(255, 255, 255, 0.08);
@@ -30,14 +30,16 @@
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--fg);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: 'Zen Dots', ui-sans-serif, system-ui, sans-serif;
+  --font-accent: 'Zen Dots', ui-sans-serif, system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #000000;
-    --fg: #F1F5F9;
+    --fg: #FFFFFF;
 
     --card: rgba(15, 23, 42, 0.60);
     --card-border: rgba(255, 255, 255, 0.12);
@@ -54,7 +56,6 @@ body {
     radial-gradient(800px 500px at 100% 100%, rgba(6, 182, 212, 0.12), transparent 58%),
     var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 ::selection {
@@ -62,12 +63,12 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
 
 .font-accent {
-  font-family: var(--font-accent), ui-sans-serif, system-ui;
+  font-family: var(--font-accent);
 }
 
 .glass {

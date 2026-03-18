@@ -10,7 +10,7 @@ export function Brand({ className }: { className?: string }) {
       </div>
       <div className="flex flex-col gap-0">
         <div className="font-display text-xl font-extrabold tracking-tight leading-none text-[color:var(--fg)]">
-          Finio
+          Fino
         </div>
         <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--muted-2)]">
           Expense Tracker

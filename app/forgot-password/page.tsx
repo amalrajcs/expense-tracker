@@ -24,10 +24,19 @@ export default function ForgotPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -35,6 +44,8 @@ export default function ForgotPasswordPage() {
   });
 
   async function onSubmit(values: FormValues) {
+    if (countdown > 0) return;
+    
     setSubmitting(true);
     const t = toast.loading("Sending reset link...");
 
@@ -47,6 +58,13 @@ export default function ForgotPasswordPage() {
       setSubmitting(false);
 
       if (error) {
+        // Handle Rate Limit Error
+        if (error.status === 429 || error.message.toLowerCase().includes("rate limit")) {
+          setCountdown(60);
+          return toast.error("Too many requests. Please wait 60 seconds before trying again.", {
+            duration: 5000,
+          });
+        }
         return toast.error(error.message);
       }
 
@@ -139,9 +157,14 @@ export default function ForgotPasswordPage() {
                 <Button 
                   type="submit" 
                   className="mt-4 h-14 w-full rounded-2xl bg-linear-to-br from-indigo-600 to-cyan-600 text-base font-bold text-white shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-[0.98] transition-all disabled:opacity-50" 
-                  disabled={submitting}
+                  disabled={submitting || countdown > 0}
                 >
-                  {submitting ? "Sending..." : "Send Reset Link"}
+                  {submitting 
+                    ? "Sending..." 
+                    : countdown > 0 
+                      ? `Try again in ${countdown}s` 
+                      : "Send Reset Link"
+                  }
                 </Button>
               </form>
             ) : (
