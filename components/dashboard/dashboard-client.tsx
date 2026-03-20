@@ -34,6 +34,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { TrendingUp, TrendingDown, Target, PieChart, BarChart3, Activity, Download, Plus } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -249,7 +250,7 @@ export function DashboardClient({ userId }: { userId: string }) {
 
   function exportToPDF() {
     const doc = new jsPDF();
-    
+
     const pageWidth = doc.internal.pageSize.getWidth();
 
     // Top Title
@@ -342,10 +343,6 @@ export function DashboardClient({ userId }: { userId: string }) {
           <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl text-base"
-                  style={{ background: "rgba(99,102,241,0.3)", border: "1px solid rgba(99,102,241,0.4)" }}>
-                  ⚖️
-                </div>
                 <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.5)" }}>
                   Net Balance · {format(new Date(), "MMMM yyyy")}
                 </span>
@@ -363,7 +360,7 @@ export function DashboardClient({ userId }: { userId: string }) {
                 {money(currentMonth.net)}
               </div>
               <div className="mt-1 text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
-                {currentMonth.net >= 0 ? "You're saving well this month 🎉" : "Expenses exceed income this month"}
+                {currentMonth.net >= 0 ? "You're saving well this month." : "Expenses exceed income this month"}
               </div>
             </div>
 
@@ -413,7 +410,7 @@ export function DashboardClient({ userId }: { userId: string }) {
             label="Total Income"
             value={money(currentMonth.income)}
             sub={`${currentMonth.inMonth.filter((t) => t.type === "income").length} transactions`}
-            icon="💚"
+            icon={<TrendingUp size={18} className="text-[#10b981]" />}
             accentColor="rgba(16,185,129"
             delay={0.05}
           />
@@ -421,7 +418,7 @@ export function DashboardClient({ userId }: { userId: string }) {
             label="Total Expenses"
             value={money(currentMonth.expense)}
             sub={`${currentMonth.inMonth.filter((t) => t.type === "expense").length} transactions`}
-            icon="🔴"
+            icon={<TrendingDown size={18} className="text-[#f43f5e]" />}
             accentColor="rgba(244,63,94"
             delay={0.10}
           />
@@ -429,7 +426,7 @@ export function DashboardClient({ userId }: { userId: string }) {
             label="Savings Rate"
             value={`${currentMonth.savingsRate.toFixed(1)}%`}
             sub="net ÷ income"
-            icon="🎯"
+            icon={<Target size={18} className="text-[#8b5cf6]" />}
             accentColor="rgba(139,92,246"
             delay={0.15}
           />
@@ -440,7 +437,7 @@ export function DashboardClient({ userId }: { userId: string }) {
             ════════════════════════════════════════ */}
         <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
           {/* Custom Donut — Expense Breakdown */}
-          <ChartCard title="Expense Breakdown" subtitle="by category · this month" icon="🍩" accentColor="rgba(244,63,94">
+          <ChartCard title="Expense Breakdown" subtitle="by category · this month" icon={<PieChart size={18} className="text-[#f43f5e]" />} accentColor="rgba(244,63,94">
             {expenseByCategory.length === 0 ? (
               <EmptyChart message="No expenses recorded yet" />
             ) : (
@@ -449,13 +446,13 @@ export function DashboardClient({ userId }: { userId: string }) {
           </ChartCard>
 
           {/* Custom Bar — Income vs Expenses */}
-          <ChartCard title="Income vs Expenses" subtitle="last 6 months" icon="📊" accentColor="rgba(16,185,129">
+          <ChartCard title="Income vs Expenses" subtitle="last 6 months" icon={<BarChart3 size={18} className="text-[#10b981]" />} accentColor="rgba(16,185,129">
             <BarComparison buckets={lastSixMonths.buckets} />
           </ChartCard>
         </div>
 
         {/* Spending Trend Line */}
-        <ChartCard title="Spending Trend" subtitle="monthly progression" icon="📈" accentColor="rgba(99,102,241">
+        <ChartCard title="Spending Trend" subtitle="monthly progression" icon={<Activity size={18} className="text-[#6366f1]" />} accentColor="rgba(99,102,241">
           <div className="h-[200px]">
             <Line data={charts.line} options={CHART_OPTS} />
           </div>
@@ -506,7 +503,7 @@ export function DashboardClient({ userId }: { userId: string }) {
                   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 }}
               >
-                <span className="text-base leading-none">📥</span> Export PDF
+                <Download size={16} strokeWidth={2.5} /> Export PDF
               </button>
               <button
                 onClick={() => { setEditing(null); setSheetOpen(true); }}
@@ -516,7 +513,7 @@ export function DashboardClient({ userId }: { userId: string }) {
                   boxShadow: "0 4px 20px rgba(99,102,241,0.5), 0 0 0 1px rgba(99,102,241,0.3)",
                 }}
               >
-                <span className="text-base leading-none">＋</span> Add Transaction
+                <Plus size={16} strokeWidth={3} /> Add Transaction
               </button>
             </div>
           </div>
@@ -529,7 +526,7 @@ export function DashboardClient({ userId }: { userId: string }) {
             {[
               {
                 span: "md:col-span-3",
-                label: "⚡ Type",
+                label: "Type",
                 node: (
                   <Select value={filters.type} onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value as Filters["type"] }))}>
                     <option value="all">All Types</option>
@@ -540,7 +537,7 @@ export function DashboardClient({ userId }: { userId: string }) {
               },
               {
                 span: "md:col-span-4",
-                label: "🏷 Category",
+                label: "Category",
                 node: (
                   <Select value={filters.category} onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value as Filters["category"] }))}>
                     <option value="all">All Categories</option>
@@ -550,17 +547,17 @@ export function DashboardClient({ userId }: { userId: string }) {
               },
               {
                 span: "md:col-span-2",
-                label: "📅 From",
+                label: "From",
                 node: <Input type="date" value={filters.from} onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))} />,
               },
               {
                 span: "md:col-span-2",
-                label: "📅 To",
+                label: "To",
                 node: <Input type="date" value={filters.to} onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))} />,
               },
               {
                 span: "md:col-span-1",
-                label: "⇅ Sort",
+                label: "Sort",
                 node: (
                   <Select
                     value={`${sort.key}:${sort.dir}`}
@@ -722,7 +719,7 @@ function SavingsRing({ pct }: { pct: number }) {
 function MetricCard({
   label, value, sub, icon, accentColor, delay,
 }: {
-  label: string; value: string; sub: string; icon: string; accentColor: string; delay: number;
+  label: string; value: string; sub: string; icon: React.ReactNode; accentColor: string; delay: number;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -782,7 +779,7 @@ function MetricCard({
 function ChartCard({
   title, subtitle, icon, accentColor, children,
 }: {
-  title: string; subtitle: string; icon: string; accentColor: string; children: React.ReactNode;
+  title: string; subtitle: string; icon: React.ReactNode; accentColor: string; children: React.ReactNode;
 }) {
   return (
     <div

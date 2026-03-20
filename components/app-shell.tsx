@@ -19,6 +19,7 @@ export function AppShell({
   const router = useRouter();
   const pathname = usePathname();
   const [email, setEmail] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,10 +27,14 @@ export function AppShell({
       if (cancelled) return;
       setEmail(data.user?.email ?? null);
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [supabase]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   async function onLogout() {
     const t = toast.loading("Signing out…");
@@ -43,52 +48,75 @@ export function AppShell({
 
   return (
     <div className="min-h-screen">
-      <div className="pointer-events-none fixed inset-0 opacity-60 [mask-image:radial-gradient(400px_240px_at_20%_15%,black,transparent_70%)]">
-        <div className="h-full w-full bg-[linear-gradient(to_right,rgba(43,92,255,0.18),transparent,rgba(43,92,255,0.10))]" />
+      {/* Glassmorphism Navbar */}
+      <div
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4 transition-all duration-500",
+        )}
+      >
+        <header
+          className={cn(
+            "w-full max-w-6xl rounded-2xl border transition-all duration-500",
+            scrolled
+              ? "border-white/10 bg-white/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(99,102,241,0.12)] backdrop-blur-2xl"
+              : "border-white/[0.06] bg-white/[0.03] backdrop-blur-xl"
+          )}
+        >
+          {/* Top shimmer line */}
+          <div className="absolute inset-x-0 top-0 h-px rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+          <div className="flex h-[62px] items-center justify-between px-5">
+            <Brand />
+
+            <nav className="flex items-center gap-2">
+              {showAuthActions ? (
+                <>
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="rounded-xl px-4 py-2 text-sm font-medium text-white/70 transition-all duration-200 hover:bg-white/[0.07] hover:text-white"
+                  >
+                    Log in
+                  </button>
+                  <button
+                    onClick={() => router.push("/signup")}
+                    className="relative rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
+                    style={{
+                      background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+                      boxShadow: "0 4px 20px rgba(99,102,241,0.45)",
+                    }}
+                  >
+                    Get started
+                  </button>
+                </>
+              ) : email ? (
+                <>
+                  <div className="hidden max-w-[200px] truncate rounded-xl border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/50 sm:block">
+                    {email}
+                  </div>
+                  <button
+                    onClick={onLogout}
+                    className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-medium text-white/70 transition-all duration-200 hover:bg-white/10 hover:text-white"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div
+                  className={cn(
+                    "rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/40",
+                    pathname?.startsWith("/dashboard") && "animate-pulse",
+                  )}
+                >
+                  {pathname?.startsWith("/dashboard") ? "Loading session…" : "—"}
+                </div>
+              )}
+            </nav>
+          </div>
+        </header>
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[color:var(--bg)]/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Brand />
-            <div className="hidden text-xs text-[color:var(--muted-2)] md:block">
-              Income + expenses, with clarity.
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {showAuthActions ? (
-              <>
-                <Button variant="ghost" onClick={() => router.push("/login")}>
-                  Log in
-                </Button>
-                <Button onClick={() => router.push("/signup")}>Create account</Button>
-              </>
-            ) : email ? (
-              <>
-                <div className="hidden max-w-[260px] truncate rounded-full border border-white/10 bg-white/40 px-3 py-1 text-xs text-[color:var(--muted)] dark:bg-white/10 sm:block">
-                  {email}
-                </div>
-                <Button variant="secondary" onClick={onLogout}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <div
-                className={cn(
-                  "rounded-full border border-white/10 bg-white/40 px-3 py-1 text-xs text-[color:var(--muted-2)] dark:bg-white/10",
-                  pathname?.startsWith("/dashboard") && "animate-pulse",
-                )}
-              >
-                {pathname?.startsWith("/dashboard") ? "Loading session…" : "—"}
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      {/* Page content — padded for fixed navbar */}
+      <main className="mx-auto max-w-6xl px-4 pb-12 pt-[90px]">{children}</main>
     </div>
   );
 }
-
